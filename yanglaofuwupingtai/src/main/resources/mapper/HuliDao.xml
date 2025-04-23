@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.HuliDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.username as username
+        ,a.password as password
+        ,a.huli_name as huliName
+        ,a.huli_photo as huliPhoto
+        ,a.sex_types as sexTypes
+        ,a.huli_phone as huliPhone
+        ,a.huli_email as huliEmail
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.HuliView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+
+        FROM huli  a
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test=" params.username != '' and params.username != null and params.username != 'null' ">
+                and a.username like CONCAT('%',#{params.username},'%')
+            </if>
+            <if test=" params.password != '' and params.password != null and params.password != 'null' ">
+                and a.password like CONCAT('%',#{params.password},'%')
+            </if>
+            <if test=" params.huliName != '' and params.huliName != null and params.huliName != 'null' ">
+                and a.huli_name like CONCAT('%',#{params.huliName},'%')
+            </if>
+            <if test="params.sexTypes != null and params.sexTypes != ''">
+                and a.sex_types = #{params.sexTypes}
+            </if>
+            <if test=" params.huliPhone != '' and params.huliPhone != null and params.huliPhone != 'null' ">
+                and a.huli_phone like CONCAT('%',#{params.huliPhone},'%')
+            </if>
+            <if test=" params.huliEmail != '' and params.huliEmail != null and params.huliEmail != 'null' ">
+                and a.huli_email like CONCAT('%',#{params.huliEmail},'%')
+            </if>
+
+        </where>
+
+        order by a.${params.orderBy} desc 
+    </select>
+
+</mapper>

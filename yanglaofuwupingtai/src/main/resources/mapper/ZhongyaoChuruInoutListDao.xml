@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.ZhongyaoChuruInoutListDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.zhongyao_churu_inout_id as zhongyaoChuruInoutId
+        ,a.zhongyao_id as zhongyaoId
+        ,a.zhongyao_churu_inout_list_number as zhongyaoChuruInoutListNumber
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.ZhongyaoChuruInoutListView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+        ,zhongyao.zhongyao_name as zhongyaoName
+        ,zhongyaoChuruInout.zhongyao_churu_inout_uuid_number as zhongyaoChuruInoutUuidNumber
+        ,zhongyaoChuruInout.zhongyao_churu_inout_name as zhongyaoChuruInoutName
+        ,zhongyaoChuruInout.zhongyao_churu_inout_types as zhongyaoChuruInoutTypes
+
+        FROM zhongyao_churu_inout_list  a
+        left JOIN zhongyao zhongyao ON a.zhongyao_id = zhongyao.id
+        left JOIN zhongyao_churu_inout zhongyaoChuruInout ON a.zhongyao_churu_inout_id = zhongyaoChuruInout.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.zhongyaoChuruInoutId != null and params.zhongyaoChuruInoutId != ''">
+                and (
+                    a.zhongyao_churu_inout_id = #{params.zhongyaoChuruInoutId}
+                )
+            </if>
+            <if test="params.zhongyaoId != null and params.zhongyaoId != ''">
+                and (
+                    a.zhongyao_id = #{params.zhongyaoId}
+                )
+            </if>
+            <if test="params.zhongyaoChuruInoutListNumberStart != null and params.zhongyaoChuruInoutListNumberStart != ''">
+                <![CDATA[  and a.zhongyao_churu_inout_list_number >= #{params.zhongyaoChuruInoutListNumberStart}   ]]>
+            </if>
+            <if test="params.zhongyaoChuruInoutListNumberEnd != null and params.zhongyaoChuruInoutListNumberEnd != ''">
+                <![CDATA[  and a.zhongyao_churu_inout_list_number <= #{params.zhongyaoChuruInoutListNumberEnd}   ]]>
+            </if>
+             <if test="params.zhongyaoChuruInoutListNumber != null and params.zhongyaoChuruInoutListNumber != ''">
+                and a.zhongyao_churu_inout_list_number = #{params.zhongyaoChuruInoutListNumber}
+             </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+                <!-- 判断中药信息的id不为空 -->
+            <if test=" params.zhongyaoIdNotNull != '' and params.zhongyaoIdNotNull != null and params.zhongyaoIdNotNull != 'null' ">
+                and a.zhongyao_id IS NOT NULL
+            </if>
+            <if test=" params.zhongyaoName != '' and params.zhongyaoName != null and params.zhongyaoName != 'null' ">
+                and zhongyao.zhongyao_name like CONCAT('%',#{params.zhongyaoName},'%')
+            </if>
+            <if test="params.zhongyaoNewMoneyStart != null ">
+                <![CDATA[  and zhongyao.zhongyao_new_money >= #{params.zhongyaoNewMoneyStart}   ]]>
+            </if>
+            <if test="params.zhongyaoNewMoneyEnd != null ">
+                <![CDATA[  and zhongyao.zhongyao_new_money <= #{params.zhongyaoNewMoneyEnd}   ]]>
+            </if>
+            <if test="params.zhongyaoKucunNumberStart != null  and params.zhongyaoKucunNumberStart != '' ">
+                <![CDATA[  and zhongyao.zhongyao_kucun_number >= #{params.zhongyaoKucunNumberStart}   ]]>
+            </if>
+            <if test="params.zhongyaoKucunNumberEnd != null  and params.zhongyaoKucunNumberEnd != '' ">
+                <![CDATA[  and zhongyao.zhongyao_kucun_number <= #{params.zhongyaoKucunNumberEnd}   ]]>
+            </if>
+            <if test="params.zhongyaoKucunNumber != null  and params.zhongyaoKucunNumber != '' ">
+                and zhongyao.zhongyao_kucun_number = #{params.zhongyaoKucunNumber}
+            </if>
+            <if test="params.zhongyaoDanweiStart != null  and params.zhongyaoDanweiStart != '' ">
+                <![CDATA[  and zhongyao.zhongyao_danwei >= #{params.zhongyaoDanweiStart}   ]]>
+            </if>
+            <if test="params.zhongyaoDanweiEnd != null  and params.zhongyaoDanweiEnd != '' ">
+                <![CDATA[  and zhongyao.zhongyao_danwei <= #{params.zhongyaoDanweiEnd}   ]]>
+            </if>
+            <if test="params.zhongyaoDanwei != null  and params.zhongyaoDanwei != '' ">
+                and zhongyao.zhongyao_danwei = #{params.zhongyaoDanwei}
+            </if>
+                <!-- 判断出入库的id不为空 -->
+            <if test=" params.zhongyaoChuruInoutIdNotNull != '' and params.zhongyaoChuruInoutIdNotNull != null and params.zhongyaoChuruInoutIdNotNull != 'null' ">
+                and a.zhongyao_churu_inout_id IS NOT NULL
+            </if>
+            <if test=" params.zhongyaoChuruInoutUuidNumber != '' and params.zhongyaoChuruInoutUuidNumber != null and params.zhongyaoChuruInoutUuidNumber != 'null' ">
+                and zhongyaoChuruInout.zhongyao_churu_inout_uuid_number like CONCAT('%',#{params.zhongyaoChuruInoutUuidNumber},'%')
+            </if>
+            <if test=" params.zhongyaoChuruInoutName != '' and params.zhongyaoChuruInoutName != null and params.zhongyaoChuruInoutName != 'null' ">
+                and zhongyaoChuruInout.zhongyao_churu_inout_name like CONCAT('%',#{params.zhongyaoChuruInoutName},'%')
+            </if>
+            <if test="params.zhongyaoChuruInoutTypes != null  and params.zhongyaoChuruInoutTypes != ''">
+                and zhongyaoChuruInout.zhongyao_churu_inout_types = #{params.zhongyaoChuruInoutTypes}
+            </if>
+
+            <if test=" params.zhongyaoChuruInoutContent != '' and params.zhongyaoChuruInoutContent != null and params.zhongyaoChuruInoutContent != 'null' ">
+                and zhongyaoChuruInout.zhongyao_churu_inout_content like CONCAT('%',#{params.zhongyaoChuruInoutContent},'%')
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(zhongyaoChuruInout.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(zhongyaoChuruInout.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+        </where>
+
+        order by a.${params.orderBy} desc 
+    </select>
+
+</mapper>
